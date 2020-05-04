@@ -1,6 +1,6 @@
 # bcx-js
 
-An opinionated Promise-based Typescript library for the Blockchain.com Exchange.
+An opinionated Promise-based Typescript library for the Blockchain.com Exchange. 💪
 
 It is compatible on both browsers and NodeJs environments via the [isomorphic-ws](https://www.npmjs.com/package/isomorphic-ws) package. It uses:
 
@@ -11,19 +11,19 @@ This library supports streaming via callbacks or simpler promise-based methods.
 
 ## Getting started
 
-1. Get the package:
+**1. Get the package:**
 
-Via NPM ->
+  *Via NPM ->*
 ```s
   npm install bcx-js --save
 ```
 
-Via Yarn ->
+  *Via Yarn ->*
 ```s
   yarn install bcx-js
 ```
 
-2. Instantiate the class
+**2. Instantiate the class**
 
 ```javascript
 import Bcx from "bcx-js"
@@ -33,13 +33,12 @@ import Bcx from "bcx-js"
 const bcx = new Bcx(API_SECRET);
 ```
 
-3. Trade away and don't get wrecked! 💸
+**3. Trade away and don't get wrecked!** 💸
 
 ```javascript
-
 try {
     // use async / await to make promises 'feel' synchronous
-
+    // let TS and the IDE guide you through the arguments allowed to speed up development!
     const order = await bcx.createOrder({
         clOrdID: "my_order_id",
         symbol: "BTC-USD",
@@ -51,10 +50,9 @@ try {
    });
 
     // A part of the order immediately filled! Let's check our balances.
-   if(order.states === OrderStatus.PARTIAL) {
+   if(order.ordStatus === OrderStatus.PARTIAL) {
        console.log(`My balance is: ${JSON.stringify(await bcx.getBalances())}`);
    }
- })
 } catch (error) {
     console.error("There was an error creating the trade", error);
 }
