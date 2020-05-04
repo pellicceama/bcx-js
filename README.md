@@ -1,4 +1,4 @@
-# bcx-js
+# Blockchain Exchange JS
 
 An opinionated Promise-based Typescript library for the [Blockchain.com Exchange](https://exchange.blockchain.com). 💪
 
@@ -15,18 +15,18 @@ This library supports streaming via callbacks or simpler promise-based methods.
 
   *Via NPM ->*
 ```s
-  npm install bcx-js --save
+  npm install blockchain-exchange --save
 ```
 
   *Via Yarn ->*
 ```s
-  yarn install bcx-js
+  yarn install blockchain-exchange
 ```
 
 **2. Instantiate the class**
 
 ```javascript
-import Bcx from "bcx-js"
+import Bcx from "blockchain-exchange"
 
 // note: the API_SECRET is only required if you're planning to make authenticated calls.
 // You can generate an api key on https://exchange.blockchain.com
