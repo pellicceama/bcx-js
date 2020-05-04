@@ -28,14 +28,14 @@ export enum Channel {
   }
 
   export enum ExecType {
-      NEW = "0",
-      CANCELLED = "4",
-      EXPIRED = "C",
-      REJECTED = "8",
-      PARTIAL_FILL = "F",
-      PENDING = "A",
-      TRADE_BREAK = "H",
-      ORDER_STATUS = "I"
+    NEW = "0",
+    CANCELLED = "4",
+    EXPIRED = "C",
+    REJECTED = "8",
+    PARTIAL_FILL = "F",
+    PENDING = "A",
+    TRADE_BREAK = "H",
+    ORDER_STATUS = "I"
   }
 
   export enum OrderTimeInForce {
