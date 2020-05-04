@@ -1,6 +1,6 @@
 # bcx-js
 
-An opinionated Promise-based Typescript library for the Blockchain.com Exchange. 💪
+An opinionated Promise-based Typescript library for the [Blockchain.com Exchange](https://exchange.blockchain.com). 💪
 
 It is compatible on both browsers and NodeJs environments via the [isomorphic-ws](https://www.npmjs.com/package/isomorphic-ws) package. It uses:
 
@@ -195,7 +195,6 @@ getOpenOrders(): Promise<Order[]>;
 * IF you were previously subscribed to trading, the promise will resolve when the order cancellation request has been submitted. You'd get a notification in your existing subscription.
 *
 * Otherwise, it will subscribe for you (temporarily) and return an OrderCreationResponse with the details of your now cancelled order.
-*
 *
 * @param orderID string
 */
