@@ -12,7 +12,7 @@ test.afterEach.always(t => {
   new Bcx().flush()
 
   return new Promise((resolve) => {
-    setTimeout(() => resolve(t.pass()), 150)
+    setTimeout(() => resolve(t.pass()), 300)
   })
 });
 

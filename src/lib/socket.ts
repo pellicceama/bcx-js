@@ -224,7 +224,7 @@ async function subscribe<Response extends BaseResponse>(
                     }
                     switch(json.event) {
                         case ChannelEvent.SUBSCRIBED: 
-                            console.debug("Subscribed to channel " + channel);
+                            // console.debug("Subscribed to channel " + channel);
                             return resolve();
                         case ChannelEvent.REJECTED:
                             console.error("Joining the channel " + json.channel + " failed due to " + json.text);

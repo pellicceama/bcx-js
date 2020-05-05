@@ -170,7 +170,7 @@ export default class Bcx {
         this.enforceAuthToken("createOrder()");
         return new Promise(async (resolve, reject) => {
             if(this.isSubscribedTrading) {
-                reject(new Error("You are already subscribed to trading"))
+                return reject(new Error("You are already subscribed to trading"))
             }
             try {
                 await subscribe(Channel.TRADING, async (res) => {
@@ -192,7 +192,7 @@ export default class Bcx {
         this.enforceAuthToken("unsubcribeTrading()");
 
         if(!this.isSubscribedTrading) {
-            return Promise.reject(new Error("You not subscribed to trading"));
+            return Promise.reject(new Error("You are not subscribed to trading"));
         }
 
         return unsubscribe(Channel.TRADING).then(() => { this.isSubscribedTrading = false })
@@ -216,27 +216,39 @@ export default class Bcx {
             }, this.apiSecret)
             return Promise.resolve(undefined);
         } else {
-            return new Promise((resolve, reject) => {
+            return new Promise(async (resolve, reject) => {
                 try {
-                    this.subscribeTrading(async (trading: TradingSubscriptionCallback) => {
+                    await this.subscribeTrading(async (trading: TradingSubscriptionCallback) => {
                         switch(trading.event) {
                             case ChannelEvent.SUBSCRIBED: 
                             case ChannelEvent.UNSUBSCRIBED:
                             case ChannelEvent.SNAPSHOT:
+                                console.debug("Top3: " + JSON.stringify(trading))
                                 break;
                             case ChannelEvent.UPDATED:
+                                console.debug("Updated: " + JSON.stringify(trading))
                                 if(order.clOrdID === (trading as OrderUpdated).clOrdID) {
                                     await unsubscribe(Channel.TRADING)
+
+                                    if((trading as OrderUpdated).ordStatus === OrderStatus.REJECTED) {
+                                        return reject(new Error("Creating order " + order.clOrdID + " failed because " + trading.text))
+                                    }
                                     return resolve(trading as OrderUpdated)
                                 }
                                 return;
                             case ChannelEvent.REJECTED: 
                             default:
                                 await unsubscribe(Channel.TRADING)
-                                return reject(new Error("Order " + order.clOrdID + " rejected because " + trading.text));
+                                return reject(new Error("Creating order " + order.clOrdID + " failed because " + trading.text));
         
                         }
-                    })    
+                    })
+                    
+                    send({
+                        action: Action.NEW_ORDER_SINGLE,
+                        channel: Channel.TRADING,            
+                        ...order
+                    }, this.apiSecret)
                 } catch (err) {
                     reject(err)
                 }
@@ -293,7 +305,7 @@ export default class Bcx {
 
         return new Promise(async (resolve, reject) => {
             try {
-                await this.subscribeTrading(trading => {
+                await this.subscribeTrading(async (trading) => {
                     switch(trading.event) {
                         case ChannelEvent.SNAPSHOT:
                             // @ts-ignore
@@ -302,6 +314,7 @@ export default class Bcx {
                             return;
                     }
                 });
+                await this.unsubcribeTrading();
             } catch (err) {
                 reject(err)
             }
@@ -339,12 +352,10 @@ export default class Bcx {
                                 break;
                             case ChannelEvent.UPDATED:
                                 if(orderID === (trading as OrderUpdated).orderID && (trading as OrderUpdated).ordStatus === OrderStatus.CANCELLED) {
-                                    await unsubscribe(Channel.TRADING)
                                     return resolve(trading as OrderUpdated)
                                 }
                                 break;
                             case ChannelEvent.REJECTED: 
-                                await unsubscribe(Channel.TRADING)
                                 reject(new Error("Cancelling order " + orderID + " rejected because " + trading.text));
                                 break;
                             default:
@@ -356,7 +367,9 @@ export default class Bcx {
                         action: Action.CANCEL_ORDER_REQUEST,
                         channel: Channel.TRADING,            
                         orderID: orderID
-                    }, this.apiSecret)    
+                    }, this.apiSecret)
+
+                    await unsubscribe(Channel.TRADING)
                 } catch (err) {
                     reject(err)
                 }
@@ -398,7 +411,6 @@ export default class Bcx {
 
                             if(orders.filter(order => order.ordStatus !== OrderStatus.CANCELLED).length === 0) {
                                 // if there are no more open orders, resolve the promise
-                                await unsubscribe(Channel.TRADING)
                                 resolve(orders)
                             }
                             break;
@@ -412,8 +424,10 @@ export default class Bcx {
                 for(let i = 0; i < orders.length; i++) {
                     await send({action: Action.CANCEL_ORDER_REQUEST,
                         channel: Channel.TRADING,            
-                        orderID: orders[i].orderID})
+                        orderID: orders[i].orderID
+                    })
                 }
+                await unsubscribe(Channel.TRADING)
             } catch (err) {
                 reject(err)
             }
