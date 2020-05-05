@@ -142,15 +142,12 @@ export default class Bcx {
 
         return new Promise(async (resolve, reject) => {
             try {
-                console.log("ABOUT TO SUBCRIBE BALANCES")
                 await subscribe(Channel.BALANCES, async (res) => {
-                    console.log("SUCCESS SUBSCRIBE BALANCE")
                     callback(res as BalancesResponse)
                     resolve()
                 }, {}, this.apiSecret)
             } catch(err) { 
                 reject(err) 
-                console.log("FAIL SUBSCRIBE BALANCE", err)
             }
         })
     }
@@ -195,7 +192,7 @@ export default class Bcx {
         this.enforceAuthToken("unsubcribeTrading()");
 
         if(!this.isSubscribedTrading) {
-            return Promise.reject("You not subscribed to trading");
+            return Promise.reject(new Error("You not subscribed to trading"));
         }
 
         return unsubscribe(Channel.TRADING).then(() => { this.isSubscribedTrading = false })

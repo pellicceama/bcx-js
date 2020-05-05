@@ -15,12 +15,12 @@ This library supports streaming via callbacks or simpler promise-based methods.
 
   *Via NPM ->*
 ```s
-  npm install blockchain-exchange --save
+npm install blockchain-exchange --save
 ```
 
   *Via Yarn ->*
 ```s
-  yarn install blockchain-exchange
+yarn install blockchain-exchange
 ```
 
 **2. Instantiate the class**
@@ -54,7 +54,7 @@ try {
        console.log(`My balance is: ${JSON.stringify(await bcx.getBalances())}`);
    }
 } catch (error) {
-    console.error("There was an error creating the trade", error);
+    console.error("There was an error", error);
 }
 
 ```
@@ -105,7 +105,7 @@ getMarket(symbol: string, level?: MarketLevel): Promise<MarketResponse>;
  * @param level MarketLevel: 'l2' or 'l3'
  * @param callback he callback will receive a stream of MarketResponse
  */
-subscribeMarket(symbol: string, level: "l2" | "l3" | undefined, callback: (market: MarketResponse) => void): Promise<void>;
+subscribeMarket(symbol: string, level: MarketLevel, callback: (market: MarketResponse) => void): Promise<void>;
 
 /**
 * Unsubscribe from a previously subscribed market

@@ -51,7 +51,7 @@ async function authenticate(ws: WebSocket, authToken: string): Promise<void> {
                 resolve()
             } else if (json.event === ChannelEvent.REJECTED) {
                 console.error("Authentication failed. Have you activated your API key via email? Response received: " + json.text)
-                reject(json.text)
+                reject(new Error(json.text))
             }
         };
 
@@ -102,10 +102,15 @@ function getSocket(): Promise<WebSocket> {
         ws.onopen = () => {
             resolve(ws);
         };
+
+        ws.onerror = (event) => {
+            console.error("There was an error connecting to the websockets ", JSON.stringify(event, undefined, 2))
+            reject(new Error(event.error));
+        }
           
         ws.onclose = () => {
             // console.log("ws closed (onClose handler)");
-            reject("ws closed");
+            reject(new Error("ws closed"));
         };
     });
 }
@@ -152,7 +157,7 @@ async function unsubscribe(channel: Channel, params?: {}): Promise<void>{
                 // remove tmp socket handler from ws event listener
                 _ws.removeEventListener('message', tmpSocketHandler);
 
-                return reject(json.text);
+                return reject(new Error(json.text));
             }   
 
         }
@@ -186,12 +191,12 @@ async function subscribe<Response extends BaseResponse>(
     }
 
     if(!listener) {
-        return Promise.reject("You must pass a valid listener to the subscription event")
+        return Promise.reject(new Error("You must pass a valid listener to the subscription event"))
     }
 
     // enforce that there's not already a listener for this channel
     if(getListener(channel, params)) {
-        return Promise.reject("You already have a listener set for channel " + channel);
+        return Promise.reject(new Error("You already have a listener set for channel " + channel));
     }
 
     // if this channel requires auth and the user hasn't authenticated (enforced by authenticate() call) then do so
@@ -223,7 +228,7 @@ async function subscribe<Response extends BaseResponse>(
                             return resolve();
                         case ChannelEvent.REJECTED:
                             console.error("Joining the channel " + json.channel + " failed due to " + json.text);
-                            return reject(json.text);
+                            return reject(new Error(json.text));
                         default:
                             // console.log("Subscribe handler, log event " + JSON.stringify(json))
                             return clientListener(json);
